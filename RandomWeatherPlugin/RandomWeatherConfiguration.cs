@@ -16,6 +16,9 @@ public class RandomWeatherConfiguration : IValidateConfiguration<RandomWeatherCo
     public int MinTransitionDurationSeconds { get; set; } = 120;
     public int MaxTransitionDurationSeconds { get; set; } = 600;
 
+    [YamlMember(Description = "Determines whether to keep the road temperature or not")]
+    public bool KeepRoadTemperature { get; set; } = false;
+
     [YamlIgnore] public int MinWeatherDurationMilliseconds => MinWeatherDurationMinutes * 60_000;
     [YamlIgnore] public int MaxWeatherDurationMilliseconds => MaxWeatherDurationMinutes * 60_000;
     [YamlIgnore] public int MinTransitionDurationMilliseconds => MinTransitionDurationSeconds * 1_000;

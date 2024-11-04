@@ -4,6 +4,7 @@ using AssettoServer.Shared.Services;
 using AssettoServer.Shared.Weather;
 using Microsoft.Extensions.Hosting;
 using Serilog;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace RandomWeatherPlugin;
 
@@ -110,8 +111,7 @@ public class RandomWeather : CriticalBackgroundService, IAssettoServerAutostart
                 {
                     TransitionDuration = transitionDuration,
                     TemperatureAmbient = last.TemperatureAmbient,
-                    TemperatureRoad = (float)WeatherUtils.GetRoadTemperature(_weatherManager.CurrentDateTime.TimeOfDay.TickOfDay / 10_000_000.0, last.TemperatureAmbient,
-                        nextWeatherType.TemperatureCoefficient),
+                    TemperatureRoad = GetNewRoadTemperature(last, nextWeatherType),
                     Pressure = last.Pressure,
                     Humidity = nextWeatherType.Humidity,
                     WindSpeed = last.WindSpeed,
@@ -131,5 +131,23 @@ public class RandomWeather : CriticalBackgroundService, IAssettoServerAutostart
                 await Task.Delay(transitionDuration + weatherDuration, stoppingToken);
             }
         }
+    }
+
+    private float GetNewRoadTemperature(WeatherData last, WeatherType next)
+    {
+        float temperature;
+
+        if (_configuration.KeepRoadTemperature)
+        {
+            temperature = last.TemperatureRoad;
+        }
+        else
+        {
+            temperature = (float)WeatherUtils.GetRoadTemperature(
+                _weatherManager.CurrentDateTime.TimeOfDay.TickOfDay / 10_000_000.0,
+                last.TemperatureAmbient, next.TemperatureCoefficient);
+        }
+
+        return temperature;
     }
 }
