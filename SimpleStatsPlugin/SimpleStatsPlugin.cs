@@ -67,6 +67,8 @@ public class SimpleStatsPlugin : CriticalBackgroundService, IAssettoServerAutost
 
         uint oldPB = _data.GetPB(client);
 
+        _data.SaveResult(client, result);
+
         if (args.Packet.Cuts == 0 && (oldPB == 0 || result.LapTime < oldPB))
         {
             var m = $"PB: {message}";
@@ -75,7 +77,6 @@ public class SimpleStatsPlugin : CriticalBackgroundService, IAssettoServerAutost
 
             _entryCarManager.BroadcastPacket(new ChatMessage { SessionId = 255, Message = m });
 
-            SaveNewPB(client, result);
         } else if (args.Packet.Cuts == 0)
         {
             float diff = ((float)result.LapTime - (float)oldPB) / 1000;
@@ -86,10 +87,5 @@ public class SimpleStatsPlugin : CriticalBackgroundService, IAssettoServerAutost
         {
             Log.Information("Lap completed: {Cuts} cuts {Message}", args.Packet.Cuts, message);
         }
-    }
-
-    private void SaveNewPB(ACTcpClient client, LapCompletedOutgoing result)
-    {
-        _data.PutPB(client, result);
     }
 }
