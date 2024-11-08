@@ -9,7 +9,6 @@ public class SampleConfigurationValidator : AbstractValidator<SimpleStatsConfigu
 {
     public SampleConfigurationValidator()
     {
-        RuleFor(cfg => cfg.Hello).Matches("World");
         RuleFor(cfg => cfg.DataDir).NotEmpty();
     }
 }
