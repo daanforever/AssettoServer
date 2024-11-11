@@ -20,14 +20,17 @@ namespace SimpleStatsPlugin;
 public class SimpleStatsPlugin : CriticalBackgroundService, IAssettoServerAutostart
 {
     public readonly SimpleStatsConfiguration Configuration;
+    public readonly SimpleStatsData simpleStatsData;
+
     private readonly ACServerConfiguration _serverConfig;
     private readonly EntryCarManager _entryCarManager;
-    private readonly SimpleStatsData _data;
 
     public SimpleStatsPlugin(
         SimpleStatsConfiguration configuration,
         ACServerConfiguration serverConfig,
         EntryCarManager entryCarManager,
+        SimpleStatsData data,
+        
         IHostApplicationLifetime applicationLifetime
         ) : base(applicationLifetime)
     {
@@ -35,9 +38,7 @@ public class SimpleStatsPlugin : CriticalBackgroundService, IAssettoServerAutost
         _serverConfig = serverConfig;
         _entryCarManager = entryCarManager;
         _entryCarManager.ClientConnected += OnClientConnected;
-        _data = new SimpleStatsData(this, serverConfig);
-
-        Log.Debug("SimpleStats plugin constructor called! Hello: {Hello}", configuration.Hello);
+        simpleStatsData = data;
     }
 
     protected override Task ExecuteAsync(CancellationToken stoppingToken)
@@ -49,14 +50,7 @@ public class SimpleStatsPlugin : CriticalBackgroundService, IAssettoServerAutost
 
     public void OnClientConnected(ACTcpClient client, EventArgs args)
     {
-        client.ChatMessageReceived += OnChatMessageReceived;
         client.LapCompleted += OnLapCompleted;
-    }
-
-    public void OnChatMessageReceived(ACTcpClient client, ChatMessageEventArgs args)
-    {
-        Log.Debug("SimpleStats: chat message received");
-        
     }
 
     private void OnLapCompleted(ACTcpClient client, LapCompletedEventArgs args)
@@ -65,9 +59,9 @@ public class SimpleStatsPlugin : CriticalBackgroundService, IAssettoServerAutost
 
         var message = $"{Utils.LapTimeFormat(result.LapTime)} {client.Name} {client.EntryCar.Model}";
 
-        uint oldPB = _data.GetPB(client);
+        uint oldPB = simpleStatsData.GetPB(client);
 
-        _data.SaveResult(client, result);
+        simpleStatsData.SaveResult(client, result);
 
         if (args.Packet.Cuts == 0 && (oldPB == 0 || result.LapTime < oldPB))
         {

@@ -1,0 +1,34 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net9.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <EnableDynamicLoading>true</EnableDynamicLoading>
+        <SelfContained>false</SelfContained>
+        <DebugType>embedded</DebugType>
+	    <PublishDir Condition="'$(RuntimeIdentifier)' == 'linux-x64'">..\out-linux-x64\plugins\$(MSBuildProjectName)\</PublishDir>
+	    <PublishDir Condition="'$(RuntimeIdentifier)' == 'linux-arm64'">..\out-linux-arm64\plugins\$(MSBuildProjectName)\</PublishDir>
+	    <PublishDir Condition="'$(RuntimeIdentifier)' == 'win-x64'">..\out-win-x64\plugins\$(MSBuildProjectName)\</PublishDir>
+        <PathMap>$(MSBuildProjectDirectory)=$(MSBuildProjectName)</PathMap>
+        <Platforms>AnyCPU;x64</Platforms>
+	      <GenerateRuntimeConfigurationFiles>True</GenerateRuntimeConfigurationFiles>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <PackageReference Include="Serilog.AspNetCore" Version="8.0.3" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\AssettoServer.Shared\AssettoServer.Shared.csproj">
+          <Private>False</Private>
+          <ExcludeAssets>runtime</ExcludeAssets>
+      </ProjectReference>
+      <ProjectReference Include="..\AssettoServer\AssettoServer.csproj">
+        <Private>False</Private>
+        <ExcludeAssets>runtime</ExcludeAssets>
+      </ProjectReference>
+      <ProjectReference Include="..\SimpleStatsPlugin\SimpleStatsPlugin.csproj" />
+    </ItemGroup>
+
+</Project>

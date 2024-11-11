@@ -1,43 +1,53 @@
 ﻿using AssettoServer.Network.Tcp;
 using AssettoServer.Server.Configuration;
+using AssettoServer.Server.Plugin;
 using AssettoServer.Shared.Network.Packets.Outgoing;
+using AssettoServer.Shared.Services;
 using Dapper;
 using Microsoft.Data.Sqlite;
+using Microsoft.Extensions.Hosting;
 using Serilog;
 
 namespace SimpleStatsPlugin;
 
 public class SimpleStatsData
 {
-    private readonly SimpleStatsPlugin _plugin;
+    public SqliteConnection DbConnection { get; }
+
+    private readonly SimpleStatsConfiguration _pluginConfig;
     private readonly ACServerConfiguration _serverConfig;
-    private readonly SqliteConnection _dbConnection;
 
-    public SimpleStatsData(SimpleStatsPlugin plugin, ACServerConfiguration serverConfig) { 
-        _plugin = plugin;
+    public SimpleStatsData(
+        SimpleStatsConfiguration pluginConfig, 
+        ACServerConfiguration serverConfig,
+        IHostApplicationLifetime applicationLifetime
+    ) : base(applicationLifetime) {
+        _pluginConfig = pluginConfig;
         _serverConfig = serverConfig;
-        _dbConnection = new SqliteConnection(GetConnectionString());
-
-        Prepare();
+        DbConnection = new SqliteConnection(GetConnectionString());
     }
 
-    private string GetConnectionString()
+    public string GetConnectionString()
     {
-        return "Data Source=" + Path.Combine(_plugin.Configuration.DataDir, "stats.sqlite");
+        return "Data Source=" + Path.Combine(_pluginConfig.DataDir, "stats.sqlite");
     }
 
-    private void Prepare()
+    protected override Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        if (!Directory.Exists(_plugin.Configuration.DataDir))
+        Log.Debug("SimpleStatsPlugin autostart called");
+
+        if (!Directory.Exists(_pluginConfig.DataDir))
         {
-            Directory.CreateDirectory(_plugin.Configuration.DataDir);
+            Directory.CreateDirectory(_pluginConfig.DataDir);
         }
 
         SQLitePCL.Batteries.Init();
         CreateTableIfNotExists();
+
+        return Task.CompletedTask;
     }
 
-    private void CreateTableIfNotExists()
+    public void CreateTableIfNotExists()
     {
         var sql =
             """
@@ -94,7 +104,7 @@ public class SimpleStatsData
             
             """;
 
-        _dbConnection.Execute(sql);
+        DbConnection.Execute(sql);
     }
 
     public uint GetPB(ACTcpClient client)
@@ -123,7 +133,7 @@ public class SimpleStatsData
             client.Name
         };
 
-        return _dbConnection.ExecuteScalar<uint>(sql, param);
+        return DbConnection.ExecuteScalar<uint>(sql, param);
     }
 
     public void SaveResult(ACTcpClient client, LapCompletedOutgoing result)
@@ -163,7 +173,7 @@ public class SimpleStatsData
               players.hashedGUID = @HashedGuid AND players.Name = @Name
         """;
 
-        var rowsAffected = _dbConnection.Execute(sql, param);
+        var rowsAffected = DbConnection.Execute(sql, param);
         Log.Debug("Insert into records {Num} rows: {Params}", rowsAffected, param);
     }
 }
