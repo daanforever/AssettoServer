@@ -14,8 +14,19 @@ using AssettoServer.Shared.Network.Packets.Shared;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
+using System.Reflection;
+using System.Runtime.Loader;
+using NodaTime.TimeZones;
+using CommandLine;
 
 namespace SimpleStatsPlugin;
+
+public class SimpleStatsPluginAssembly : AssemblyLoadContext { 
+    protected override Assembly? Load(AssemblyName assemblyName)
+    {
+        return null;
+    }
+}
 
 public class SimpleStatsPlugin : CriticalBackgroundService, IAssettoServerAutostart
 {

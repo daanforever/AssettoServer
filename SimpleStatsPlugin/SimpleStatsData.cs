@@ -2,49 +2,20 @@
 using AssettoServer.Server.Configuration;
 using AssettoServer.Server.Plugin;
 using AssettoServer.Shared.Network.Packets.Outgoing;
-using AssettoServer.Shared.Services;
-using Dapper;
-using Microsoft.Data.Sqlite;
-using Microsoft.Extensions.Hosting;
+using DataStoragePlugin;
 using Serilog;
 
 namespace SimpleStatsPlugin;
 
-public class SimpleStatsData
-{
-    public SqliteConnection DbConnection { get; }
-
-    private readonly SimpleStatsConfiguration _pluginConfig;
+public class SimpleStatsData { 
     private readonly ACServerConfiguration _serverConfig;
+    private readonly DataStorageSql _data;
 
-    public SimpleStatsData(
-        SimpleStatsConfiguration pluginConfig, 
-        ACServerConfiguration serverConfig,
-        IHostApplicationLifetime applicationLifetime
-    ) : base(applicationLifetime) {
-        _pluginConfig = pluginConfig;
+    public SimpleStatsData(ACServerConfiguration serverConfig, SimpleStatsConfiguration pluginConfig) {
         _serverConfig = serverConfig;
-        DbConnection = new SqliteConnection(GetConnectionString());
-    }
+        _data = DataStorageSql.SingleInstance(pluginConfig.DataDir);
 
-    public string GetConnectionString()
-    {
-        return "Data Source=" + Path.Combine(_pluginConfig.DataDir, "stats.sqlite");
-    }
-
-    protected override Task ExecuteAsync(CancellationToken stoppingToken)
-    {
-        Log.Debug("SimpleStatsPlugin autostart called");
-
-        if (!Directory.Exists(_pluginConfig.DataDir))
-        {
-            Directory.CreateDirectory(_pluginConfig.DataDir);
-        }
-
-        SQLitePCL.Batteries.Init();
         CreateTableIfNotExists();
-
-        return Task.CompletedTask;
     }
 
     public void CreateTableIfNotExists()
@@ -104,7 +75,7 @@ public class SimpleStatsData
             
             """;
 
-        DbConnection.Execute(sql);
+        _data.Execute(sql);
     }
 
     public uint GetPB(ACTcpClient client)
@@ -133,7 +104,7 @@ public class SimpleStatsData
             client.Name
         };
 
-        return DbConnection.ExecuteScalar<uint>(sql, param);
+        return _data.ExecuteScalar<uint>(sql, param);
     }
 
     public void SaveResult(ACTcpClient client, LapCompletedOutgoing result)
@@ -173,7 +144,7 @@ public class SimpleStatsData
               players.hashedGUID = @HashedGuid AND players.Name = @Name
         """;
 
-        var rowsAffected = DbConnection.Execute(sql, param);
+        var rowsAffected = _data.Execute(sql, param);
         Log.Debug("Insert into records {Num} rows: {Params}", rowsAffected, param);
     }
 }
