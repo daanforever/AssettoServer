@@ -42,10 +42,10 @@ public class DataStorageSql
         return "Data Source=" + Path.Combine(DataDir, "stats.sqlite");
     }
 
-    private string Caller()
+    private string? Caller()
     {
-        var methodInfo = new StackTrace().GetFrame(1).GetMethod();
-        return methodInfo.ReflectedType.Name;
+        var methodInfo = new StackTrace().GetFrame(1)?.GetMethod();
+        return methodInfo?.ReflectedType?.Name;
     }
 
     public int Execute(string query)
