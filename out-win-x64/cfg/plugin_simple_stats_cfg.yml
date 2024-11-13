@@ -1,0 +1,3 @@
+# yaml-language-server: $schema=..\..\cfg\schemas\plugin_simple_stats_cfg.schema.json
+
+DataDir: data

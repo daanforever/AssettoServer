@@ -363,7 +363,10 @@ MigrationBackup/
 FodyWeavers.xsd
 
 out-linux-*
-out-win-*
+out-win-*/*
+!out-win-*/cfg/
+out-win-*/cfg/reference
+out-win-*/cfg/schemas
 
 # Jetbrains IDEs
 .idea/

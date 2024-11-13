@@ -1,0 +1,10 @@
+{
+  "enabled": false,
+  "detailsMode": 1,
+  "port": 80,
+  "downloadSpeedLimit": 1000000,
+  "verboseLog": true,
+  "description": null,
+  "downloadPasswordOnly": false,
+  "publishPasswordChecksum": true
+}

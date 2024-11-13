@@ -1,0 +1,41 @@
+EnablePlugins:
+- AutoModerationPlugin
+# - TimeDilationPlugin
+# - LiveWeatherPlugin
+- RandomWeatherPlugin
+# - DataStoragePlugin
+- SimpleStatsPlugin
+- AchievementsPlugin
+
+EnableServerDetails: true
+
+
+ServerDescription: |-
+  Debug
+
+# Override minimum CSP version required to join this server
+# MinimumCSPVersion: "CSPVersion.V0_1_79"
+
+# Enable new CSP weather handling. Allows rain and smooth weather transitions. Requires CSP 0.1.76+
+EnableWeatherFx: true
+
+# Make sure there is always a minimum amount of AI cars available.
+# MaxPlayerCount: 32
+
+# Lock server date to real date.
+LockServerDate: false
+
+# Enable AI traffic
+EnableAi: false
+
+# Enable CSP client messages feature. Requires CSP 0.1.77+
+EnableClientMessages: true
+
+# Enable CSP UDP client messages feature. Required for VR head/hand syncing. Requires CSP 0.1.80+
+EnableUdpClientMessages: true
+
+# Log unknown CSP Lua client messages / online events
+DebugClientMessages: true
+
+# Enable CSP custom position updates.
+EnableCustomUpdate: true
