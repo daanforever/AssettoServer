@@ -1,0 +1,9 @@
+{
+  "profiles": {
+    "AssettoServer": {
+      "commandName": "Project",
+      "commandLineArgs": "--plugins-from-workdir true",
+      "workingDirectory": "../out-win-x64"
+    }
+  }
+}

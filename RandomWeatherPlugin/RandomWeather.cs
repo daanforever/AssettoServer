@@ -1,6 +1,8 @@
-﻿using AssettoServer.Server.Configuration;
+﻿using AssettoServer.Server;
+using AssettoServer.Server.Configuration;
 using AssettoServer.Server.Plugin;
 using AssettoServer.Server.Weather;
+using AssettoServer.Shared.Network.Packets.Shared;
 using AssettoServer.Shared.Services;
 using AssettoServer.Shared.Weather;
 using Microsoft.Extensions.Hosting;
@@ -20,12 +22,14 @@ public class RandomWeather : CriticalBackgroundService, IAssettoServerAutostart
     private readonly IWeatherTypeProvider _weatherTypeProvider;
     private readonly RandomWeatherConfiguration _configuration;
     private readonly List<WeatherWeight> _weathers = new();
+    private readonly EntryCarManager _entryCarManager;
 
-    public RandomWeather(RandomWeatherConfiguration configuration, WeatherManager weatherManager, IWeatherTypeProvider weatherTypeProvider, IHostApplicationLifetime applicationLifetime) : base(applicationLifetime)
+    public RandomWeather(RandomWeatherConfiguration configuration, WeatherManager weatherManager, IWeatherTypeProvider weatherTypeProvider, EntryCarManager entryCarManager, IHostApplicationLifetime applicationLifetime) : base(applicationLifetime)
     {
         _configuration = configuration;
         _weatherManager = weatherManager;
         _weatherTypeProvider = weatherTypeProvider;
+        _entryCarManager = entryCarManager;
 
         if (_configuration.Mode == RandomWeatherMode.TransitionTable)
         {
@@ -38,8 +42,7 @@ public class RandomWeather : CriticalBackgroundService, IAssettoServerAutostart
             {
                 TransitionDuration = 1000,
                 TemperatureAmbient = last.TemperatureAmbient,
-                TemperatureRoad = (float)WeatherUtils.GetRoadTemperature(_weatherManager.CurrentDateTime.TimeOfDay.TickOfDay / 10_000_000.0, last.TemperatureAmbient,
-                    next.TemperatureCoefficient),
+                TemperatureRoad = GetNewRoadTemperature(last, next),
                 Pressure = last.Pressure,
                 Humidity = next.Humidity,
                 WindSpeed = last.WindSpeed,
@@ -138,13 +141,22 @@ public class RandomWeather : CriticalBackgroundService, IAssettoServerAutostart
                     nextWeatherType.WeatherFxType,
                     Math.Round(transitionDuration / 1000.0f),
                     Math.Round(weatherDuration / 60_000.0f, 1));
+
+                if (_configuration.ForecastToChat)
+                {
+                    var message = String.Format(
+                    "Weather forecast: {0} for {1} minutes.",
+                    nextWeatherType.WeatherFxType,
+                    Math.Round(weatherDuration / 60_000.0f, 0));
+
+                    _entryCarManager.BroadcastPacket(new ChatMessage { SessionId = 255, Message = message });
+                }
                 
                 _weatherManager.SetWeather(new WeatherData(last.Type, nextWeatherType)
                 {
                     TransitionDuration = transitionDuration,
                     TemperatureAmbient = last.TemperatureAmbient,
-                    TemperatureRoad = (float)WeatherUtils.GetRoadTemperature(_weatherManager.CurrentDateTime.TimeOfDay.TickOfDay / 10_000_000.0, last.TemperatureAmbient,
-                        nextWeatherType.TemperatureCoefficient),
+                    TemperatureRoad = GetNewRoadTemperature(last, nextWeatherType),
                     Pressure = last.Pressure,
                     Humidity = nextWeatherType.Humidity,
                     WindSpeed = last.WindSpeed,
@@ -167,5 +179,23 @@ public class RandomWeather : CriticalBackgroundService, IAssettoServerAutostart
                 await Task.Delay(transitionDuration + weatherDuration, stoppingToken);
             }
         }
+    }
+
+    private float GetNewRoadTemperature(WeatherData last, WeatherType next)
+    {
+        float temperature;
+
+        if (_configuration.ChangeRoadTemperature)
+        {
+            temperature = (float)WeatherUtils.GetRoadTemperature(
+                _weatherManager.CurrentDateTime.TimeOfDay.TickOfDay / 10_000_000.0,
+                last.TemperatureAmbient, next.TemperatureCoefficient);
+        }
+        else
+        {
+            temperature = last.TemperatureRoad;
+        }
+
+        return temperature;
     }
 }

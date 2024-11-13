@@ -61,6 +61,11 @@ public class RandomWeatherConfiguration : IValidateConfiguration<RandomWeatherCo
         { WeatherFxType.Hail, 1.0f },
     };
 
+    [YamlMember(Description = "Determines whether the road temperature should be changed or not.")]
+    public bool ChangeRoadTemperature { get; set; } = true;
+    [YamlMember(Description = "Send weather forecast to chat or not.")]
+    public bool ForecastToChat { get; set; } = false;
+
     [YamlIgnore] public int MinWeatherDurationMilliseconds => MinWeatherDurationMinutes * 60_000;
     [YamlIgnore] public int MaxWeatherDurationMilliseconds => MaxWeatherDurationMinutes * 60_000;
     [YamlIgnore] public int MinTransitionDurationMilliseconds => MinTransitionDurationSeconds * 1_000;
