@@ -27,6 +27,7 @@ public class DataStorageTest
 
         // Fake Server
         var containerBuilder = new ContainerBuilder();
+        containerBuilder.RegisterType<LifetimeStub>().As<IHostApplicationLifetime>();
 
         var configLocations = ConfigurationLocations.FromOptions(null, null, null);
         var config = new ACServerConfiguration(null, configLocations, true, false);
@@ -50,6 +51,16 @@ public class DataStorageTest
             _plugin = scope.Resolve<AchievementsPlugin>();
             _data = scope.Resolve<DataStorageSql>();
         }
+    }
+
+    public class LifetimeStub : Module, IHostApplicationLifetime
+    {
+        private static CancellationToken cancellationToken = new CancellationToken();
+
+        CancellationToken IHostApplicationLifetime.ApplicationStarted => cancellationToken;
+        CancellationToken IHostApplicationLifetime.ApplicationStopping => cancellationToken;
+        CancellationToken IHostApplicationLifetime.ApplicationStopped => cancellationToken;
+        void IHostApplicationLifetime.StopApplication() { }
     }
 
     [OneTimeSetUp]
