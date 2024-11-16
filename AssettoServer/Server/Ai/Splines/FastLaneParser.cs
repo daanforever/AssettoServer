@@ -46,7 +46,7 @@ public class FastLaneParser
         string aipPath = Path.Join(folder, "fast_lane.aip");
         if (File.Exists(aipPath))
         {
-            Log.Information("Loading from AI package {Path}", aipPath);
+            Log.Information("Loading from AI package {_path}", aipPath);
 
             _logger = new LoggerConfiguration()
                 .MinimumLevel.Information()
@@ -74,7 +74,7 @@ public class FastLaneParser
                     var spline = FromFile(fileStream, entry.Name, idOffset);
                     splines.Add(entry.Name, spline);
                     
-                    _logger.Debug("Parsed {Path}, id range {MinId} - {MaxId}", entry, idOffset, idOffset + spline.Points.Length - 1);
+                    _logger.Debug("Parsed {_path}, id range {MinId} - {MaxId}", entry, idOffset, idOffset + spline.Points.Length - 1);
                     idOffset += spline.Points.Length;
                 }
             }
@@ -104,7 +104,7 @@ public class FastLaneParser
                 var spline = FromFile(fileStream, filename, idOffset);
                 splines.Add(filename, spline);
 
-                _logger.Debug("Parsed {Path}, id range {MinId} - {MaxId}", file, idOffset, idOffset + spline.Points.Length - 1);
+                _logger.Debug("Parsed {_path}, id range {MinId} - {MaxId}", file, idOffset, idOffset + spline.Points.Length - 1);
                 idOffset += spline.Points.Length;
             }
         }
@@ -201,7 +201,7 @@ public class FastLaneParser
 
     private FastLane FromFile(Stream file, string name, int idOffset = 0)
     {
-        _logger.Debug("Loading AI spline {Path}", name);
+        _logger.Debug("Loading AI spline {_path}", name);
         using var reader = new BinaryReader(file);
 
         int version = reader.ReadInt32();

@@ -108,7 +108,7 @@ public class ChecksumManager
                     if (TryCreateChecksum(file, out byte[]? checksum))
                     {
                         checksums.Add(file, checksum);
-                        Log.Debug("Added checksum for {Path}", file);
+                        Log.Debug("Added checksum for {_path}", file);
                     }
                 }
             }
@@ -118,7 +118,7 @@ public class ChecksumManager
                 if (TryCreateChecksum(acdPath, out byte[]? checksum))
                 {
                     checksums.Add(acdPath, checksum);
-                    Log.Debug("Added checksum for {Path}", car);
+                    Log.Debug("Added checksum for {_path}", car);
                 }
             }
 
@@ -165,7 +165,7 @@ public class ChecksumManager
         if (TryCreateChecksum(filePath, out byte[]? checksum, surfaceFix))
         {
             dict.Add(name ?? filePath, checksum);
-            Log.Debug("Added checksum for {Path}", name ?? filePath);
+            Log.Debug("Added checksum for {_path}", name ?? filePath);
         }
     }
     

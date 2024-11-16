@@ -33,7 +33,7 @@ public class AiSpline : IDisposable
     
     public AiSpline(string path)
     {
-        Log.Debug("Mapping cached AI spline {Path} to memory", Path.GetFileName(path));
+        Log.Debug("Mapping cached AI spline {_path} to memory", Path.GetFileName(path));
         
         _file = MemoryMappedFile.CreateFromFile(path, FileMode.Open, null, 0, MemoryMappedFileAccess.Read);
         _fileAccessor = _file.CreateMemoryAccessor(0, 0, MemoryMappedFileAccess.Read);

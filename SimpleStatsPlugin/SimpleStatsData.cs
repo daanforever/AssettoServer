@@ -11,9 +11,12 @@ public class SimpleStatsData {
     private readonly ACServerConfiguration _serverConfig;
     private readonly DataStorageSql _data;
 
-    public SimpleStatsData(ACServerConfiguration serverConfig, SimpleStatsConfiguration pluginConfig) {
+    public SimpleStatsData(
+        ACServerConfiguration serverConfig,
+        DataStorageSql dataStorage
+    ) {
         _serverConfig = serverConfig;
-        _data = DataStorageSql.SingleInstance(pluginConfig.DataDir);
+        _data = dataStorage;
 
         CreateTableIfNotExists();
     }
@@ -32,7 +35,7 @@ public class SimpleStatsData {
             );
 
             CREATE UNIQUE INDEX IF NOT EXISTS tracks_track_config
-            ON tracks (track, config);
+                ON tracks (track, config);
 
             CREATE TABLE IF NOT EXISTS cars
             (
@@ -43,7 +46,7 @@ public class SimpleStatsData {
             );
 
             CREATE UNIQUE INDEX IF NOT EXISTS cars_model
-            ON cars (model);
+                ON cars (model);
 
             CREATE TABLE IF NOT EXISTS players
             (
@@ -54,7 +57,7 @@ public class SimpleStatsData {
             );
 
             CREATE UNIQUE INDEX IF NOT EXISTS players_guid_name
-            ON players (hashedGUID, name);
+                ON players (hashedGUID, name);
 
             CREATE TABLE IF NOT EXISTS records
             (
@@ -71,7 +74,7 @@ public class SimpleStatsData {
             );
 
             CREATE INDEX IF NOT EXISTS records_track_car_player
-            ON records (track_id, car_id, player_id);
+                ON records (track_id, car_id, player_id);
             
             """;
 

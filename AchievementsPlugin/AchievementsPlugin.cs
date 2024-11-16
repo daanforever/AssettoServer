@@ -26,29 +26,69 @@ public class AchievementsPlugin : CriticalBackgroundService, IAssettoServerAutos
     public AchievementsPlugin(
         AchievementsConfiguration configuration,
         EntryCarManager entryCarManager,
+        DataStorageSql dataStorage,
         IHostApplicationLifetime applicationLifetime
         ) : base(applicationLifetime)
     {
         Configuration = configuration;
         _entryCarManager = entryCarManager;
         _entryCarManager.ClientConnected += OnClientConnected;
-        _data = DataStorageSql.SingleInstance("data");
+        _data = dataStorage;
     }
 
     protected override Task ExecuteAsync(CancellationToken stoppingToken)
     {
         Log.Debug("Achievements: plugin autostart called");
 
-        //var sql = 
-        //    """
-        //    SELECT COUNT(*) FROM records;
-        //    """;
+        var sql =
+            """
+            SELECT COUNT(*) FROM records;
+            """;
 
-        //var count = _data.DbConnection.ExecuteScalar<Int32>(sql);
+        var count = _data.ExecuteScalar<Int32>(sql);
 
-        //Log.Debug("Achievements: found {Count} records", count);
+        Log.Debug("Achievements: found {Count} records", count);
+
+        var type = typeof(IAchievement);
+        var achievementClasses = type.Assembly.GetTypes()
+            .Where(p => type.IsAssignableFrom(p) && !p.IsInterface);
+
+        Log.Debug("Achievements: {Num} known achievements", achievementClasses.Count());
 
         return Task.CompletedTask;
+    }
+
+    public void CreateTableIfNotExists() {
+        var sql =
+            """
+
+            CREATE TABLE IF NOT EXISTS achievements
+            (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                name TEXT,
+                active INTEGER DEFAULT TRUE,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            );
+
+            CREATE UNIQUE INDEX IF NOT EXISTS achievements_name
+                ON achievements (name);
+
+            CREATE TABLE IF NOT EXISTS players_achievements
+            (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                player_id INTEGER NOT NULL,
+                achievement_id INTEGER NOT NULL,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY(player_id) REFERENCES players(id),
+                FOREIGN KEY(achievement_id) REFERENCES achievements(id),
+            );
+
+            CREATE UNIQUE INDEX IF NOT EXISTS players_achievements_player_id_achievement_id
+                ON players_achievements (player_id, achievement_id;
+            
+            """;
+
+        _data.Execute(sql);
     }
 
     public void OnClientConnected(ACTcpClient client, EventArgs args)

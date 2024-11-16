@@ -23,7 +23,7 @@ public static class ReferenceConfigurationHelper
 
         using var writer = File.CreateText(path);
         ConfigurationSchemaGenerator.WriteModeLine(writer, BaseFolder, schemaPath);
-        writer.WriteLine($"# {name} Reference Configuration");
+        writer.WriteLine($"# {name} Reference _configuration");
         writer.WriteLine("# This file serves as an overview of all possible options with their default values.");
         writer.WriteLine();
 

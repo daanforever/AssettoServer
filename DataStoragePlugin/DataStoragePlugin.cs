@@ -10,23 +10,14 @@ namespace DataStoragePlugin;
 
 public class DataStorageSql
 {
-    private static DataStorageSql? _instance;
-
-    private readonly string DataDir;
+    public readonly string DataDir;
     private readonly SqliteConnection _sqlite;
 
-    public static DataStorageSql SingleInstance(string dataDir)
-    {
-        _instance ??= new DataStorageSql(dataDir);
-
-        return _instance;
-    }
-
-    public DataStorageSql(string dataDir)
+    public DataStorageSql(DataStorageConfiguration configuration)
     {
         Log.Debug("DataStorageSql instance created from {Caller}", Caller());
 
-        DataDir = dataDir;
+        DataDir = configuration.DataDir;
 
         if (!Directory.Exists(DataDir))
         {
@@ -48,16 +39,11 @@ public class DataStorageSql
         return methodInfo?.ReflectedType?.Name;
     }
 
-    public int Execute(string query)
-    {
-        return _sqlite.Execute(query);
-    }
-
-    public int Execute(string query, object? param) {
+    public int Execute(string query, object? param = null) {
         return _sqlite.Execute(query, param);
     }
 
-    public T? ExecuteScalar<T>(string query, object? param)
+    public T? ExecuteScalar<T>(string query, object? param = null)
     {
         return _sqlite.ExecuteScalar<T>(query, param);
     }

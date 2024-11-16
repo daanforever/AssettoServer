@@ -29,10 +29,8 @@
     <ItemGroup>
       <PackageReference Include="Dapper" Version="2.1.35" />
       <PackageReference Include="Microsoft.Data.Sqlite.Core" Version="9.0.0" />
-      <PackageReference Include="SQLite" Version="3.13.0">
-        <NoWarn>$(NoWarn);NETSDK1206</NoWarn>
-      </PackageReference>
-      <PackageReference Include="SQLitePCLRaw.bundle_e_sqlite3" Version="2.1.10" />
+      <PackageReference Include="Serilog" Version="4.1.0" />
+      <PackageReference Include="SQLitePCLRaw.bundle_winsqlite3" Version="2.1.10" />
       <PackageReference Include="SQLitePCLRaw.core" Version="2.1.10" />
     </ItemGroup>
 

@@ -43,7 +43,7 @@ public class FileBasedUserGroup : IListableUserGroup, IDisposable
 
     private void OnManualReload(SignalHandler sender, EventArgs args)
     {
-        Log.Information("Reloading file {Path}", _path);
+        Log.Information("Reloading file {_path}", _path);
         _ = Task.Run(LoadAsync);
     }
 
@@ -51,7 +51,7 @@ public class FileBasedUserGroup : IListableUserGroup, IDisposable
     {
         if (e.ChangeType != WatcherChangeTypes.Deleted)
         {
-            Log.Information("File {Path} changed on disk, reloading", _path);
+            Log.Information("File {_path} changed on disk, reloading", _path);
             _ = Task.Run(LoadAsync);
         }
     }
@@ -72,7 +72,7 @@ public class FileBasedUserGroup : IListableUserGroup, IDisposable
 
                     if (_guidList.ContainsKey(guid))
                     {
-                        Log.Warning("Duplicate entry in {Path}: {Guid}", _path, guid);
+                        Log.Warning("Duplicate entry in {_path}: {Guid}", _path, guid);
                     }
                     _guidList[guid] = true;
                 }
@@ -83,11 +83,11 @@ public class FileBasedUserGroup : IListableUserGroup, IDisposable
             }
 
             List = _guidList.Keys.ToList();
-            Log.Debug("Loaded {Path} with {Count} entries", _path, _guidList.Count);
+            Log.Debug("Loaded {_path} with {Count} entries", _path, _guidList.Count);
         }
         catch (Exception ex)
         {
-            Log.Error(ex, "Error loading {Path}", _path);
+            Log.Error(ex, "Error loading {_path}", _path);
         }
         finally
         {

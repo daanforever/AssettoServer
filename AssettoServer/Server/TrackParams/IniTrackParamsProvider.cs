@@ -26,7 +26,7 @@ public class IniTrackParamsProvider : ITrackParamsProvider
     {
         if (!File.Exists(TrackParamsPath))
         {
-            Log.Information("{Path} not found, downloading from GitHub...", TrackParamsPath);
+            Log.Information("{_path} not found, downloading from GitHub...", TrackParamsPath);
 
             try
             {

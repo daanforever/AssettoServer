@@ -19,6 +19,7 @@ public class ACPluginLoader
         if (loadFromWorkdir)
         {
             var dir = Path.Join(Directory.GetCurrentDirectory(), "plugins");
+            Log.Debug("ACPluginLoader: Current dir: {Dir}", dir);
             if (Directory.Exists(dir))
             {
                 ScanDirectory(dir);
@@ -28,9 +29,13 @@ public class ACPluginLoader
                 Directory.CreateDirectory(dir);
             }
         }
-        
+
         string pluginsDir = Path.Combine(AppContext.BaseDirectory, "plugins");
-        ScanDirectory(pluginsDir);
+
+        if (Directory.Exists(pluginsDir))
+        {
+            ScanDirectory(pluginsDir);
+        }
     }
 
     private void ScanDirectory(string path)
@@ -57,7 +62,7 @@ public class ACPluginLoader
                     config = new PluginConfiguration();
                 }
                 
-                AvailablePlugins.Add(dirName, new AvailablePlugin(config, loader, dir));
+                AvailablePlugins.Add(dirName, new AvailablePlugin(config, loader, dir, pluginDll));
             }
         }
     }
@@ -88,7 +93,7 @@ public class ACPluginLoader
         }
         
         var assembly = plugin.Load();
-        
+
         foreach (var type in assembly.GetTypes())
         {
             if (typeof(AssettoServerModule).IsAssignableFrom(type) && !type.IsAbstract)
@@ -132,7 +137,7 @@ public class ACPluginLoader
     private static string ConfigurationTypeToFilename(string type, string ending = "yml")
     {
         var strat = new SnakeCaseNamingStrategy();
-        type = type.Replace("Configuration", "Cfg");
+        type = type.Replace("_configuration", "Cfg");
         return $"plugin_{strat.GetPropertyName(type, false)}.{ending}";
     }
 }

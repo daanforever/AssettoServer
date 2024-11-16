@@ -3,7 +3,9 @@
     "AssettoServer": {
       "commandName": "Project",
       "commandLineArgs": "--plugins-from-workdir true",
-      "workingDirectory": "../out-win-x64"
+      "workingDirectory": "../out-win-x64/",
+      "hotReloadEnabled": false,
+      "nativeDebugging": false
     }
   }
 }

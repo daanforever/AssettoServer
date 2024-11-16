@@ -4,8 +4,11 @@ using System.Linq;
 using System.Threading.Tasks;
 using AssettoServer.Network.Tcp;
 using AssettoServer.Server.Configuration;
+using AssettoServer.Shared.Model;
 using AssettoServer.Shared.Network.Packets;
+using AssettoServer.Shared.Network.Packets.Incoming;
 using AssettoServer.Shared.Network.Packets.Outgoing;
+using Serilog;
 
 namespace AssettoServer.Server;
 
@@ -34,7 +37,12 @@ public class VoteManager
         Task? vote = null;
         if (_state == null)
         {
-            vote = StartVote(voteType, target);
+            string initiatorName = _entryCarManager.ConnectedCars[sessionId].Client?.Name ?? "Unknown";
+            string targetName = _entryCarManager.ConnectedCars[target].Client?.Name ?? "Unknown";
+
+            Log.Information("{User1} started a vote to kick {User2}", initiatorName, targetName);
+
+            vote = StartVote(voteType, target, initiatorName);
         }
 
         if (voteType == _state?.Type)
@@ -60,12 +68,13 @@ public class VoteManager
             await vote;
     }
 
-    private async Task StartVote(VoteType voteType, byte target)
+    private async Task StartVote(VoteType voteType, byte target, string initiatorName)
     {
         _state = new VoteState
         {
             Type = voteType,
             Target = target,
+            Initiator = initiatorName,
             End = DateTime.Now.AddSeconds(_configuration.Server.VoteDuration)
         };
         
@@ -79,9 +88,9 @@ public class VoteManager
                     var client = _entryCarManager.ConnectedCars[_state.Target].Client;
                     if (client == null) return;
                     if (client.IsAdministrator) return; 
-                    await _entryCarManager.KickAsync(client, KickReason.VoteKicked, "Kicked through vote",
-                            "You have been kicked through vote",
-                            $"{client.Name} has been kicked from the server through vote.");
+                    await _entryCarManager.KickAsync(client, KickReason.VoteKicked, $"Kicked through vote (initiator {_state.Initiator})",
+                            $"You have been kicked through vote (initiator {_state.Initiator})",
+                            $"{client.Name} has been kicked from the server through vote (initiator {_state.Initiator}).");
                     break;
                 case VoteType.NextSession:
                     _sessionManager.NextSession();
@@ -128,5 +137,6 @@ public class VoteState
     public Dictionary<byte, bool> Votes { get; set; } = [];
     public VoteType Type { get; set; }
     public byte Target { get; set; }
+    public required string Initiator { get; set; }
     public DateTime End { get; set; }
 }

@@ -3,7 +3,7 @@ EnablePlugins:
 # - TimeDilationPlugin
 # - LiveWeatherPlugin
 - RandomWeatherPlugin
-# - DataStoragePlugin
+- DataStoragePlugin
 - SimpleStatsPlugin
 - AchievementsPlugin
 

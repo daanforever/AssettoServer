@@ -12,9 +12,15 @@
 	    <PublishDir Condition="'$(RuntimeIdentifier)' == 'win-x64'">..\out-win-x64\plugins\$(MSBuildProjectName)\</PublishDir>
         <PathMap>$(MSBuildProjectDirectory)=$(MSBuildProjectName)</PathMap>
         <Platforms>AnyCPU;x64</Platforms>
-	      <GenerateRuntimeConfigurationFiles>True</GenerateRuntimeConfigurationFiles>
-	      <PlatformTarget>x64</PlatformTarget>
+        <PlatformTarget>x64</PlatformTarget>
+        <GenerateRuntimeConfigurationFiles>True</GenerateRuntimeConfigurationFiles>
     </PropertyGroup>
+
+    <ItemGroup>
+      <Compile Remove="Tests.old\**" />
+      <EmbeddedResource Remove="Tests.old\**" />
+      <None Remove="Tests.old\**" />
+    </ItemGroup>
 
     <ItemGroup>
       <ProjectReference Include="..\AssettoServer.Shared\AssettoServer.Shared.csproj">
@@ -28,8 +34,8 @@
       </ProjectReference>
       <ProjectReference Include="..\DataStoragePlugin\DataStoragePlugin.csproj">
         <Private></Private>
-        <ExcludeAssets>All</ExcludeAssets>
-        <PrivateAssets>All</PrivateAssets>
+        <ExcludeAssets></ExcludeAssets>
+        <PrivateAssets></PrivateAssets>
         <ReferenceOutputAssembly>True</ReferenceOutputAssembly>
       </ProjectReference>
     </ItemGroup>

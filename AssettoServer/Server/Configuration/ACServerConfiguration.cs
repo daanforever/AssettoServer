@@ -109,7 +109,7 @@ public partial class ACServerConfiguration
 
     private ServerConfiguration LoadServerConfiguration(string path)
     {
-        Log.Debug("Loading server_cfg.ini from {Path}", path);
+        Log.Debug("Loading server_cfg.ini from {_path}", path);
         try
         {
             if (!File.Exists(path))
@@ -131,7 +131,7 @@ public partial class ACServerConfiguration
 
     private EntryList LoadEntryList(string path)
     {
-        Log.Debug("Loading entry_list.ini from {Path}", path);
+        Log.Debug("Loading entry_list.ini from {_path}", path);
         try
         {
             if (!File.Exists(path))
@@ -197,7 +197,7 @@ public partial class ACServerConfiguration
         }
         else if(!string.IsNullOrEmpty(welcomeMessagePath))
         {
-            Log.Warning("Welcome message not found at {Path}", Path.GetFullPath(welcomeMessagePath));
+            Log.Warning("Welcome message not found at {_path}", Path.GetFullPath(welcomeMessagePath));
         }
 
         return welcomeMessage;
@@ -371,7 +371,7 @@ public partial class ACServerConfiguration
     }
 
     private void LoadExtraConfig(string path, string schemaPath) {
-        Log.Debug("Loading extra_cfg.yml from {Path}", path);
+        Log.Debug("Loading extra_cfg.yml from {_path}", path);
 
         try
         {

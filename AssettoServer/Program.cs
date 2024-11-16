@@ -32,13 +32,13 @@ public static class Program
     [UsedImplicitly(ImplicitUseKindFlags.Assign, ImplicitUseTargetFlags.WithMembers)]
     private class Options
     {
-        [Option('p', "preset", Required = false, SetName = "AssettoServer", HelpText = "Configuration preset")]
+        [Option('p', "preset", Required = false, SetName = "AssettoServer", HelpText = "_configuration preset")]
         public string Preset { get; set; } = "";
 
-        [Option('c', Required = false, SetName = "Content Manager compatibility", HelpText = "Path to server configuration")]
+        [Option('c', Required = false, SetName = "Content Manager compatibility", HelpText = "_path to server configuration")]
         public string ServerCfgPath { get; set; } = "";
 
-        [Option('e', Required = false, SetName = "Content Manager compatibility", HelpText = "Path to entry list")]
+        [Option('e', Required = false, SetName = "Content Manager compatibility", HelpText = "_path to entry list")]
         public string EntryListPath { get; set; } = "";
 
         [Option("plugins-from-workdir", Required = false, HelpText = "Additionally load plugins from working directory")]

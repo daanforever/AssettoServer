@@ -5,10 +5,10 @@ using System.Runtime.Loader;
 
 namespace DataStoragePlugin;
 
-public class DataStorageModule : AssettoServerModule
+public class DataStorageModule : AssettoServerModule<DataStorageConfiguration>
 {
     protected override void Load(ContainerBuilder builder)
     {
-        //builder.RegisterType<DataStorage>().AsSelf().SingleInstance();
+        builder.RegisterType<DataStorageSql>().AsSelf().SingleInstance();
     }
 }
