@@ -80,11 +80,11 @@ public class AchievementsPlugin : CriticalBackgroundService, IAssettoServerAutos
                 achievement_id INTEGER NOT NULL,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 FOREIGN KEY(player_id) REFERENCES players(id),
-                FOREIGN KEY(achievement_id) REFERENCES achievements(id),
+                FOREIGN KEY(achievement_id) REFERENCES achievements(id)
             );
 
             CREATE UNIQUE INDEX IF NOT EXISTS players_achievements_player_id_achievement_id
-                ON players_achievements (player_id, achievement_id;
+                ON players_achievements (player_id, achievement_id);
             
             """;
 

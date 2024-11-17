@@ -6,5 +6,5 @@ namespace DataStoragePlugin;
 [UsedImplicitly(ImplicitUseKindFlags.Assign, ImplicitUseTargetFlags.WithMembers)]
 public class DataStorageConfiguration : IValidateConfiguration<SampleConfigurationValidator>
 {
-    public string DataDir { get; init; } = "data";
+    public string DataDir { get; set; } = "data";
 }

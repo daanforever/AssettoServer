@@ -29,14 +29,16 @@ public class DataStorageTest
         var containerBuilder = new ContainerBuilder();
         containerBuilder.RegisterType<LifetimeStub>().As<IHostApplicationLifetime>();
 
-        var configLocations = ConfigurationLocations.FromOptions(null, null, null);
-        var config = new ACServerConfiguration(null, configLocations, true, false);
-        var startup = new AssettoServer.Startup(config);
+        {
+            var configLocations = ConfigurationLocations.FromOptions(null, null, null);
+            var config = new ACServerConfiguration(null, configLocations, true, false);
+            var startup = new AssettoServer.Startup(config);
 
-        var services = new ServiceCollection();
-        
-        startup.ConfigureServices(services);
-        startup.ConfigureContainer(containerBuilder);
+            var services = new ServiceCollection();
+
+            startup.ConfigureServices(services);
+            startup.ConfigureContainer(containerBuilder);
+        }
 
         container = containerBuilder.Build(ContainerBuildOptions.IgnoreStartableComponents);
 
@@ -48,8 +50,10 @@ public class DataStorageTest
 
         using (var scope = container.BeginLifetimeScope())
         {
-            _plugin = scope.Resolve<AchievementsPlugin>();
-            _data = scope.Resolve<DataStorageSql>();
+            var dsConfig = new DataStorageConfiguration();
+            dsConfig.DataDir = _dataDir;
+            _data = scope.Resolve<DataStorageSql>(new TypedParameter(typeof(DataStorageConfiguration), dsConfig));
+            _plugin = scope.Resolve<AchievementsPlugin>(new TypedParameter(typeof(DataStorageSql), _data));
         }
     }
 
@@ -97,7 +101,7 @@ public class DataStorageTest
     {
         _plugin.CreateTableIfNotExists();
         Assert.That(
-            () => _data.ExecuteScalar<uint>("SELECT 1 FROM achievemts"),
+            () => _data.ExecuteScalar<uint>("SELECT 1 FROM achievements"),
             Throws.Nothing
         );
 
