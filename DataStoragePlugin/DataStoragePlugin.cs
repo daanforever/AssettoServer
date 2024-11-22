@@ -8,10 +8,10 @@ using System.Diagnostics;
 
 namespace DataStoragePlugin;
 
-public class DataStorageSql
+public class DataStorageSql : IDisposable
 {
     public readonly string DataDir;
-    private readonly SqliteConnection _sqlite;
+    private SqliteConnection? _sqlite;
 
     public DataStorageSql(DataStorageConfiguration configuration)
     {
@@ -25,12 +25,18 @@ public class DataStorageSql
         }
 
         SQLitePCL.Batteries.Init();
-        _sqlite = new SqliteConnection(GetConnectionString());
+        _sqlite = new SqliteConnection(GetConnectionString(configuration.Pooling));
     }
 
-    private string GetConnectionString()
+    private string GetConnectionString(bool pooling = true)
     {
-        return "Data Source=" + Path.Combine(DataDir, "stats.sqlite");
+        string baseConnectionString = "Data Source=" + Path.Combine(DataDir, "stats.sqlite");
+
+        return new SqliteConnectionStringBuilder(baseConnectionString)
+        {
+            Mode = SqliteOpenMode.ReadWriteCreate,
+            Pooling = pooling,
+        }.ToString();
     }
 
     private string? Caller()
@@ -39,12 +45,40 @@ public class DataStorageSql
         return methodInfo?.ReflectedType?.Name;
     }
 
-    public int Execute(string query, object? param = null) {
-        return _sqlite.Execute(query, param);
+    public int? Execute(string query, object? param = null) {
+        return _sqlite?.Execute(query, param);
     }
 
     public T? ExecuteScalar<T>(string query, object? param = null)
     {
-        return _sqlite.ExecuteScalar<T>(query, param);
+        if (_sqlite != null)
+        {
+            return _sqlite.ExecuteScalar<T>(query, param);
+        } else
+        {
+            return default;
+        }
+    }
+
+    public void Dispose()
+    {
+        Dispose(true);
+        GC.SuppressFinalize(this);
+    }
+
+    public virtual void Dispose(bool disposing)
+    {
+        if (disposing)
+        {
+            lock (this)
+            {
+                if (_sqlite != null)
+                {
+                    _sqlite.Close();
+                    _sqlite.Dispose();
+                    _sqlite = null;
+                }
+            }
+        }
     }
 }

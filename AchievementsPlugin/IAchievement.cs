@@ -8,5 +8,6 @@ namespace AchievementsPlugin
 {
     public interface IAchievement
     {
+        public string Name { get; }
     }
 }

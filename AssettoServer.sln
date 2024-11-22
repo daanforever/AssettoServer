@@ -45,7 +45,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AchievementsPlugin", "Achie
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DataStoragePlugin", "DataStoragePlugin\DataStoragePlugin.csproj", "{66F90464-4669-450B-BB94-84717541D775}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AchievementsPlugin.Tests", "AchivementsPlugin.Tests\AchievementsPlugin.Tests.csproj", "{1FEEBD2C-140D-4769-83D1-A83446C62766}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AchievementsPlugin.Tests", "AchievementsPlugin.Tests\AchievementsPlugin.Tests.csproj", "{1FEEBD2C-140D-4769-83D1-A83446C62766}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
