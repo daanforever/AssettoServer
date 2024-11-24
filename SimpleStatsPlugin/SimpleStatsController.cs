@@ -8,10 +8,10 @@ namespace SimpleStatsPlugin;
 [ApiController]
 public class SimpleStatsController : ControllerBase
 {
-    private readonly SimpleStatsPlugin _plugin;
+    private readonly SimpleStats _plugin;
     private readonly ACServer _server;
 
-    public SimpleStatsController(SimpleStatsPlugin plugin, ACServer server)
+    public SimpleStatsController(SimpleStats plugin, ACServer server)
     {
         _plugin = plugin;
         _server = server;
@@ -20,7 +20,7 @@ public class SimpleStatsController : ControllerBase
     [HttpGet("/simplestatsplugin")]
     public string SimpleStats()
     {
-        string result = "SimpleStatsPlugin DataDir: " + _plugin.Configuration.DataDir;
+        string result = "SimpleStats DataDir: " + _plugin.Configuration.DataDir;
         result += 5100.ToString("D7");
         return result;
     }

@@ -11,6 +11,7 @@ using AssettoServer.Shared.Network.Packets.Shared;
 using System.ComponentModel;
 using System.Runtime.Loader;
 using DataStoragePlugin;
+using SimpleStatsPlugin;
 using Microsoft.Extensions.Hosting;
 using Serilog;
 using McMaster.NETCore.Plugins;
@@ -20,38 +21,51 @@ namespace AchievementsPlugin;
 
 public class AchievementsPlugin : CriticalBackgroundService, IAssettoServerAutostart
 {
-    public readonly AchievementsConfiguration Configuration;
-    public readonly EntryCarManager ECM;
-    public readonly DataStorageSql DS;
-    public IEnumerable<IAchievement>? Achievements;
+    private readonly AchievementsConfiguration _configuration;
+    private readonly EntryCarManager _entryCarManager;
+
+    public readonly DataStorageSql DataStorage;
+    public readonly List<object> Achievements = [];
+    public readonly SimpleStats Stats;
 
     public AchievementsPlugin(
         AchievementsConfiguration configuration,
         EntryCarManager entryCarManager,
         DataStorageSql dataStorage,
+        SimpleStats stats,
         IHostApplicationLifetime applicationLifetime
         ) : base(applicationLifetime)
     {
-        Configuration = configuration;
-        ECM = entryCarManager;
-        ECM.ClientConnected += OnClientConnected;
-        DS = dataStorage;
+        _configuration = configuration;
+        _entryCarManager = entryCarManager;
+        DataStorage = dataStorage;
+        Stats = stats;
+
+        CreateTableIfNotExists();
+
+        var type = typeof(IAchievement);
+        var achievementClasses = type.Assembly.GetTypes()
+            .Where(p => type.IsAssignableFrom(p) && !p.IsInterface);
+
+        foreach (var achievementClass in achievementClasses)
+        {
+            var instance = Activator.CreateInstance(achievementClass, this);
+
+            if (instance != null) {
+                Achievements.Add(instance);
+            }
+        }
+
     }
 
     protected override Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        Log.Debug("Achievements: plugin autostart called");
-
-        var type = typeof(IAchievement);
-        Achievements = (IEnumerable<IAchievement>?)type.Assembly.GetTypes()
-            .Where(p => type.IsAssignableFrom(p) && !p.IsInterface);
-
         if (Achievements != null)
         {
-            Log.Debug("Achievements: registered {Num} achievement(s)", Achievements.Count());
+            Log.Debug("Achievements: registered {Num} achievement(s)", Achievements.Count);
         } else
         {
-            Log.Warning("Achiements not registered!");
+            Log.Warning("Achiements: achievements not found!");
         }
 
         return Task.CompletedTask;
@@ -87,24 +101,14 @@ public class AchievementsPlugin : CriticalBackgroundService, IAssettoServerAutos
             
             """;
 
-        DS.Execute(sql);
+        DataStorage.Execute(sql);
     }
 
-    public void OnClientConnected(ACTcpClient client, EventArgs args)
-    {
-        client.LapCompleted += OnLapCompleted;
-    }
-
-    private void OnLapCompleted(ACTcpClient client, LapCompletedEventArgs args)
-    {
-        LapCompletedOutgoing result = args.Packet;
-    }
-
-    internal async void Earn(IAchievement achievement, ACTcpClient player)
+    internal async Task Earn(IAchievement achievement, ACTcpClient player)
     {
         await Task.Run(() =>
         {
-            if (NotObtained(achievement, player))
+            if (!IsObtained(achievement, player))
             {
                 Obtain(achievement, player);
                 Announce(achievement, player);
@@ -112,7 +116,7 @@ public class AchievementsPlugin : CriticalBackgroundService, IAssettoServerAutos
         });
     }
 
-    private bool NotObtained(IAchievement achievement, ACTcpClient player)
+    private bool IsObtained(IAchievement achievement, ACTcpClient player)
     {
         var sql = """
             SELECT
@@ -137,7 +141,7 @@ public class AchievementsPlugin : CriticalBackgroundService, IAssettoServerAutos
             @PlayerName = player.Name
         }; 
 
-        return DS.ExecuteScalar<bool>(sql, param);
+        return DataStorage.ExecuteScalar<bool>(sql, param);
     }
 
     private void Obtain(IAchievement achievement, ACTcpClient player)
@@ -162,12 +166,12 @@ public class AchievementsPlugin : CriticalBackgroundService, IAssettoServerAutos
             PlayerName = player.Name
         };
 
-        DS.Execute(sql, param);
+        DataStorage.Execute(sql, param);
     }
 
     private void Announce(IAchievement achievement, ACTcpClient player)
     {
         string message = $"{player.Name} earned achievement: <{achievement.Name}>";
-        ECM.BroadcastPacket(new ChatMessage { SessionId = 255, Message = message });
+        _entryCarManager.BroadcastPacket(new ChatMessage { SessionId = 255, Message = message });
     }
 }

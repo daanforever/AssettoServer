@@ -21,22 +21,19 @@ using CommandLine;
 
 namespace SimpleStatsPlugin;
 
-public class SimpleStatsPluginAssembly : AssemblyLoadContext { 
-    protected override Assembly? Load(AssemblyName assemblyName)
-    {
-        return null;
-    }
-}
-
-public class SimpleStatsPlugin : CriticalBackgroundService, IAssettoServerAutostart
+public class SimpleStats : CriticalBackgroundService, IAssettoServerAutostart
 {
     public readonly SimpleStatsConfiguration Configuration;
     public readonly SimpleStatsData simpleStatsData;
 
-    private readonly ACServerConfiguration _serverConfig;
     private readonly EntryCarManager _entryCarManager;
 
-    public SimpleStatsPlugin(
+    /// <summary>
+    /// Fires when statistics are updated and saved
+    /// </summary>
+    public event EventHandler<ACTcpClient, LapCompletedEventArgs>? Update;
+
+    public SimpleStats(
         SimpleStatsConfiguration configuration,
         ACServerConfiguration serverConfig,
         EntryCarManager entryCarManager,
@@ -46,7 +43,6 @@ public class SimpleStatsPlugin : CriticalBackgroundService, IAssettoServerAutost
         ) : base(applicationLifetime)
     {
         Configuration = configuration;
-        _serverConfig = serverConfig;
         _entryCarManager = entryCarManager;
         _entryCarManager.ClientConnected += OnClientConnected;
         simpleStatsData = data;
@@ -73,6 +69,7 @@ public class SimpleStatsPlugin : CriticalBackgroundService, IAssettoServerAutost
         uint oldPB = simpleStatsData.GetPB(client);
 
         simpleStatsData.SaveResult(client, result);
+        Update?.Invoke(client, args);
 
         if (args.Packet.Cuts == 0 && (oldPB == 0 || result.LapTime < oldPB))
         {
@@ -90,6 +87,9 @@ public class SimpleStatsPlugin : CriticalBackgroundService, IAssettoServerAutost
         }
         else 
         {
+            var msg = $"Lap completed {Utils.LapTimeFormat(result.LapTime)} with {args.Packet.Cuts} cut(s)";
+            client.SendPacket(new ChatMessage { SessionId = 255, Message = msg });
+
             Log.Information("Lap completed: {Cuts} cuts {Message}", args.Packet.Cuts, message);
         }
     }

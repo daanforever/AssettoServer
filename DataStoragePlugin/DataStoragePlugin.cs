@@ -15,7 +15,7 @@ public class DataStorageSql : IDisposable
 
     public DataStorageSql(DataStorageConfiguration configuration)
     {
-        Log.Debug("DataStorageSql instance created from {Caller}", Caller());
+        Log.Debug("DataStorageSql instance created");
 
         DataDir = configuration.DataDir;
 
@@ -37,12 +37,6 @@ public class DataStorageSql : IDisposable
             Mode = SqliteOpenMode.ReadWriteCreate,
             Pooling = pooling,
         }.ToString();
-    }
-
-    private string? Caller()
-    {
-        var methodInfo = new StackTrace().GetFrame(1)?.GetMethod();
-        return methodInfo?.ReflectedType?.Name;
     }
 
     public int? Execute(string query, object? param = null) {

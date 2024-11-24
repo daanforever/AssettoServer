@@ -15,6 +15,6 @@ public class AchievementsCommandModule : ACModuleBase
     [Command("/achievements")]
     public void AchievementsPlugin()
     {
-        Reply("Hello from Achievements plugin!");
+        Reply("Hello from AchievementClasses plugin!");
     }
 }

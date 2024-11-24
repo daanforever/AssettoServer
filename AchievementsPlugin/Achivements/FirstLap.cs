@@ -1,4 +1,5 @@
 ﻿using AssettoServer.Network.Tcp;
+using AssettoServer.Server;
 using Serilog;
 using System;
 using System.Collections.Generic;
@@ -8,22 +9,22 @@ using System.Threading.Tasks;
 
 namespace AchievementsPlugin.Achievements
 {
-    public class FirstConnect : IAchievement
+    public class FirstLap : IAchievement
     {
-        string IAchievement.Name => "First time on the server";
+        string IAchievement.Name => "My first lap";
 
         private readonly AchievementsPlugin _plugin;
 
-        public FirstConnect(AchievementsPlugin plugin)
+        public FirstLap(AchievementsPlugin plugin)
         {
             _plugin = plugin;
-            _plugin.ECM.ClientConnected += ClientConnected;
+            _plugin.Stats.Update += OnUpdate;
 
         }
 
-        private void ClientConnected(ACTcpClient sender, EventArgs args)
+        private void OnUpdate(ACTcpClient sender, LapCompletedEventArgs args)
         {
-            _plugin.Earn(this, sender);
+            _ = _plugin.Earn(this, sender);
         }
     }
 }

@@ -5,9 +5,9 @@ namespace SimpleStatsPlugin;
 
 public class SimpleStatsCommandModule : ACModuleBase
 {
-    private readonly SimpleStatsPlugin _plugin;
+    private readonly SimpleStats _plugin;
 
-    public SimpleStatsCommandModule(SimpleStatsPlugin plugin)
+    public SimpleStatsCommandModule(SimpleStats plugin)
     {
         _plugin = plugin;
     }

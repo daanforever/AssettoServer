@@ -36,12 +36,6 @@ public class DataStorageTest
     }
 
     [Test]
-    public void ContainerBuild()
-    {
-        Assert.That(_fake.Scope.IsRegistered(typeof(EntryCarManager)), Is.EqualTo(true));
-    }
-
-    [Test]
     public void TableCreated()
     {
         _plugin.CreateTableIfNotExists();

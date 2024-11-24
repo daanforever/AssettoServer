@@ -20,7 +20,7 @@ public class AchievementsController : ControllerBase
     [HttpGet("/achievements")]
     public string Achievements()
     {
-        string result = "Achievements HTTP/GET";
+        string result = "AchievementClasses HTTP/GET";
         return result;
     }
 }

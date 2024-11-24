@@ -38,6 +38,7 @@
         <PrivateAssets></PrivateAssets>
         <ReferenceOutputAssembly>True</ReferenceOutputAssembly>
       </ProjectReference>
+      <ProjectReference Include="..\SimpleStatsPlugin\SimpleStatsPlugin.csproj" />
     </ItemGroup>
 
 </Project>
