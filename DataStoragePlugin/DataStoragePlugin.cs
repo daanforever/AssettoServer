@@ -11,7 +11,8 @@ namespace DataStoragePlugin;
 public class DataStorageSql : IDisposable
 {
     public readonly string DataDir;
-    private SqliteConnection? _sqlite;
+    private readonly SqliteConnection _sqlite;
+    private readonly object lockObj = new();
 
     public DataStorageSql(DataStorageConfiguration configuration)
     {
@@ -40,18 +41,12 @@ public class DataStorageSql : IDisposable
     }
 
     public int? Execute(string query, object? param = null) {
-        return _sqlite?.Execute(query, param);
+        return _sqlite.Execute(query, param);
     }
 
     public T? ExecuteScalar<T>(string query, object? param = null)
     {
-        if (_sqlite != null)
-        {
-            return _sqlite.ExecuteScalar<T>(query, param);
-        } else
-        {
-            return default;
-        }
+        return _sqlite.ExecuteScalar<T>(query, param);
     }
 
     public void Dispose()
@@ -60,17 +55,16 @@ public class DataStorageSql : IDisposable
         GC.SuppressFinalize(this);
     }
 
-    public virtual void Dispose(bool disposing)
+    protected virtual void Dispose(bool disposing)
     {
         if (disposing)
         {
-            lock (this)
+            lock (lockObj)
             {
                 if (_sqlite != null)
                 {
                     _sqlite.Close();
                     _sqlite.Dispose();
-                    _sqlite = null;
                 }
             }
         }

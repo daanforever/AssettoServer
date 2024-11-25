@@ -62,6 +62,7 @@ public class AchievementsPlugin : CriticalBackgroundService, IAssettoServerAutos
     {
         if (Achievements != null)
         {
+            RegisterAchievements();
             Log.Debug("Achievements: registered {Num} achievement(s)", Achievements.Count);
         } else
         {
@@ -104,16 +105,24 @@ public class AchievementsPlugin : CriticalBackgroundService, IAssettoServerAutos
         DataStorage.Execute(sql);
     }
 
-    internal async Task Earn(IAchievement achievement, ACTcpClient player)
+    private void RegisterAchievements()
     {
-        await Task.Run(() =>
+        var sql = """
+            INSERT OR IGNORE INTO achievements (class) VALUES (@Class)
+            """;
+
+        foreach (var achievement in Achievements) {
+            DataStorage.Execute(sql, new {Class = achievement.GetType().Name});
+        }
+    }
+
+    public void Earn(IAchievement achievement, ACTcpClient player)
+    {
+        if (!IsObtained(achievement, player))
         {
-            if (!IsObtained(achievement, player))
-            {
-                Obtain(achievement, player);
-                Announce(achievement, player);
-            }
-        });
+            Obtain(achievement, player);
+            Announce(achievement, player);
+        }
     }
 
     private bool IsObtained(IAchievement achievement, ACTcpClient player)
@@ -137,8 +146,8 @@ public class AchievementsPlugin : CriticalBackgroundService, IAssettoServerAutos
 
         var param = new {
             Achievement = achievement.GetType().Name,
-            @HashedGUID = player.HashedGuid,
-            @PlayerName = player.Name
+            HashedGUID = player.HashedGuid,
+            PlayerName = player.Name
         }; 
 
         return DataStorage.ExecuteScalar<bool>(sql, param);
@@ -173,5 +182,6 @@ public class AchievementsPlugin : CriticalBackgroundService, IAssettoServerAutos
     {
         string message = $"{player.Name} earned achievement: <{achievement.Name}>";
         _entryCarManager.BroadcastPacket(new ChatMessage { SessionId = 255, Message = message });
+        Log.Information(message);
     }
 }

@@ -1,11 +1,5 @@
 ﻿using AssettoServer.Network.Tcp;
 using AssettoServer.Server;
-using Serilog;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace AchievementsPlugin.Achievements
 {
@@ -24,7 +18,7 @@ namespace AchievementsPlugin.Achievements
 
         private void OnUpdate(ACTcpClient sender, LapCompletedEventArgs args)
         {
-            _ = _plugin.Earn(this, sender);
+            _plugin.Earn(this, sender);
         }
     }
 }
